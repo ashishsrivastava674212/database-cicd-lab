@@ -4,6 +4,7 @@
     [Email]      NVARCHAR (256) NOT NULL,
     [CreatedAt]  DATETIME2 (7)  DEFAULT (sysutcdatetime()) NOT NULL,
     [PhoneNumber] NVARCHAR(50) NULL, 
+    [PhoneNumber1] NVARCHAR(50) NULL, 
     PRIMARY KEY CLUSTERED ([CustomerId] ASC)
 );
 
