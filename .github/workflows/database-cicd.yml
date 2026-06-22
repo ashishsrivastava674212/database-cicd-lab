@@ -47,8 +47,14 @@ jobs:
       - uses: actions/download-artifact@v4
         with: { name: dacpac }
  
-      - name: Install SqlPackage
-        run: dotnet tool install -g microsoft.sqlpackage
+      - name: Install SqlPackage (if not already installed)
+  	run: |
+    if (-not (Get-Command sqlpackage -ErrorAction SilentlyContinue)) {
+      dotnet tool install -g microsoft.sqlpackage
+    } else {
+      Write-Host "sqlpackage already installed, skipping"
+    }
+ 
  
       - name: Preview diff
         run: |
@@ -75,8 +81,13 @@ jobs:
       - uses: actions/download-artifact@v4
         with: { name: dacpac }
  
-      - name: Install SqlPackage
-        run: dotnet tool install -g microsoft.sqlpackage
+      - name: Install SqlPackage (if not already installed)
+  	run: |
+    if (-not (Get-Command sqlpackage -ErrorAction SilentlyContinue)) {
+      dotnet tool install -g microsoft.sqlpackage
+    } else {
+      Write-Host "sqlpackage already installed, skipping"
+    }
  
       - name: Publish to Staging
         run: sqlpackage /Action:Publish /SourceFile:${{ env.DACPAC_NAME }} /TargetConnectionString:"${{ secrets.STAGING_DB_CONNECTION }}" /p:BlockOnPossibleDataLoss=true
@@ -90,8 +101,14 @@ jobs:
       - uses: actions/download-artifact@v4
         with: { name: dacpac }
  
-      - name: Install SqlPackage
-        run: dotnet tool install -g microsoft.sqlpackage
+      - name: Install SqlPackage (if not already installed)
+  	run: |
+    if (-not (Get-Command sqlpackage -ErrorAction SilentlyContinue)) {
+      dotnet tool install -g microsoft.sqlpackage
+    } else {
+      Write-Host "sqlpackage already installed, skipping"
+    }
+ 
  
       - name: Publish to Production
         run: sqlpackage /Action:Publish /SourceFile:${{ env.DACPAC_NAME }} /TargetConnectionString:"${{ secrets.PROD_DB_CONNECTION }}" /p:BlockOnPossibleDataLoss=true
