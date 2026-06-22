@@ -48,12 +48,13 @@ jobs:
         with: { name: dacpac }
  
       - name: Install SqlPackage (if not already installed)
-  	run: |
-    if (-not (Get-Command sqlpackage -ErrorAction SilentlyContinue)) {
-      dotnet tool install -g microsoft.sqlpackage
-    } else {
-      Write-Host "sqlpackage already installed, skipping"
-    }
+  
+        run: |
+          if (-not (Get-Command sqlpackage -ErrorAction SilentlyContinue)) {
+            dotnet tool install -g microsoft.sqlpackage
+          } else {
+            Write-Host "sqlpackage already installed, skipping"
+          }
  
  
       - name: Preview diff
@@ -82,12 +83,13 @@ jobs:
         with: { name: dacpac }
  
       - name: Install SqlPackage (if not already installed)
-  	run: |
-    if (-not (Get-Command sqlpackage -ErrorAction SilentlyContinue)) {
-      dotnet tool install -g microsoft.sqlpackage
-    } else {
-      Write-Host "sqlpackage already installed, skipping"
-    }
+  
+        run: |
+          if (-not (Get-Command sqlpackage -ErrorAction SilentlyContinue)) {
+            dotnet tool install -g microsoft.sqlpackage
+          } else {
+            Write-Host "sqlpackage already installed, skipping"
+          }
  
       - name: Publish to Staging
         run: sqlpackage /Action:Publish /SourceFile:${{ env.DACPAC_NAME }} /TargetConnectionString:"${{ secrets.STAGING_DB_CONNECTION }}" /p:BlockOnPossibleDataLoss=true
@@ -102,12 +104,13 @@ jobs:
         with: { name: dacpac }
  
       - name: Install SqlPackage (if not already installed)
-  	run: |
-    if (-not (Get-Command sqlpackage -ErrorAction SilentlyContinue)) {
-      dotnet tool install -g microsoft.sqlpackage
-    } else {
-      Write-Host "sqlpackage already installed, skipping"
-    }
+  
+        run: |
+          if (-not (Get-Command sqlpackage -ErrorAction SilentlyContinue)) {
+            dotnet tool install -g microsoft.sqlpackage
+          } else {
+            Write-Host "sqlpackage already installed, skipping"
+          }
  
  
       - name: Publish to Production
