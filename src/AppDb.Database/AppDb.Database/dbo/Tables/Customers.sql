@@ -10,6 +10,8 @@
     [PhoneNumber4] NVARCHAR(50) NULL,
     [PhoneNumber5] NVARCHAR(50) NULL,
     [PhoneNumber6] NVARCHAR(50) NULL,
+    [PhoneNumber7] NVARCHAR(50) NULL,
+    [PhoneNumber8] NVARCHAR(50) NULL,
     PRIMARY KEY CLUSTERED ([CustomerId] ASC)
 );
 
