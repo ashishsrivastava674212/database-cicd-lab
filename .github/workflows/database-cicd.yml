@@ -1,0 +1,106 @@
+name: Database CI/CD - DACPAC
+ 
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/AppDb.Database/AppDb.Database/**'
+  push:
+    branches: [main]
+    paths:
+      - 'src/AppDb.Database/AppDb.Database/**'
+ 
+env:
+  PROJECT_PATH: src/AppDb.Database/AppDb.Database/AppDb.Database.sqlproj
+  DACPAC_NAME: AppDb.Database.dacpac
+ 
+jobs:
+  build:
+    name: Build DACPAC
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+ 
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+ 
+      - name: Restore
+        run: nuget restore ${{ env.PROJECT_PATH }}
+ 
+      - name: Build DACPAC
+        run: msbuild ${{ env.PROJECT_PATH }} /p:Configuration=Release
+ 
+      - name: Upload DACPAC artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dacpac
+          path: src/AppDb.Database/AppDb.Database/bin/Release/${{ env.DACPAC_NAME }}
+ 
+  deploy-dev:
+    name: Deploy to Dev
+
+    needs: build
+    if: github.event_name == 'pull_request'
+    runs-on: windows-latest
+    environment: dev
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { name: dacpac }
+ 
+      - name: Install SqlPackage
+        run: dotnet tool install -g microsoft.sqlpackage
+ 
+      - name: Preview diff
+        run: |
+          sqlpackage /Action:Script `
+            /SourceFile:${{ env.DACPAC_NAME }} `
+            /TargetConnectionString:"${{ secrets.DEV_DB_CONNECTION }}" `
+            /OutputPath:diff_dev.sql
+        continue-on-error: true
+ 
+      - name: Publish to Dev
+        run: |
+          sqlpackage /Action:Publish `
+            /SourceFile:${{ env.DACPAC_NAME }} `
+            /TargetConnectionString:"${{ secrets.DEV_DB_CONNECTION }}" `
+            /p:BlockOnPossibleDataLoss=false
+ 
+  deploy-staging:
+    name: Deploy to Staging
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: windows-latest
+    environment: staging
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { name: dacpac }
+ 
+      - name: Install SqlPackage
+        run: dotnet tool install -g microsoft.sqlpackage
+ 
+      - name: Publish to Staging
+        run: |
+          sqlpackage /Action:Publish `
+
+            /SourceFile:${{ env.DACPAC_NAME }} `
+            /TargetConnectionString:"${{ secrets.STAGING_DB_CONNECTION }}" `
+            /p:BlockOnPossibleDataLoss=true
+ 
+  deploy-prod:
+    name: Deploy to Production
+    needs: deploy-staging
+    runs-on: windows-latest
+    environment: production
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { name: dacpac }
+ 
+      - name: Install SqlPackage
+        run: dotnet tool install -g microsoft.sqlpackage
+ 
+      - name: Publish to Production
+        run: |
+          sqlpackage /Action:Publish `
+            /SourceFile:${{ env.DACPAC_NAME }} `
+            /TargetConnectionString:"${{ secrets.PROD_DB_CONNECTION }}" `
+            /p:BlockOnPossibleDataLoss=true

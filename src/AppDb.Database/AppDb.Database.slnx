@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="AppDb.Database/AppDb.Database.sqlproj">
+    <Build />
+    <Deploy />
+  </Project>
+</Solution>
